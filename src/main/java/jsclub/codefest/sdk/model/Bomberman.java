@@ -61,6 +61,7 @@ public class Bomberman {
         setBombs(mapInfo.bombs, enemy.power, true);
         addRestrictedNodes(walls);
         addRestrictedNodes(selfisolatedZone);
+        addRestrictedNodes(bombs);
     }
 
     public Player getEnemyPlayer() {
@@ -371,8 +372,36 @@ public class Bomberman {
         return mRestrictedNodes;
     }
 
-    public boolean isEndanger() {
-        return (dangerBombs.contains(position) || virusList.contains(position) || dangerHumanList.contains(position));
+    public boolean isEndanger(Node a, List<Viruses> list) {
+        for (Node i:dangerBombs)
+        {
+            if (a.col==i.col && a.row==i.row)
+                return  true;
+
+        }
+        for (Viruses i: list)
+        {
+            switch (i.direction)
+            {
+                case 1:
+                    if (i.position.col-1==a.col && i.position.row==a.row)
+                        return true;
+                    break;
+                case 2:
+                    if (i.position.col+1==a.col && i.position.row==a.row)
+                        return true;
+                    break;
+                case 3:
+                    if (i.position.col==a.col && i.position.row-1==a.row)
+                        return true;
+                    break;
+                case 4:
+                    if (i.position.col==a.col && i.position.row+1==a.row)
+                        return true;
+                    break;
+            }
+        }
+       return false;
     }
 
     public static Bomberman clone(Bomberman p) {
