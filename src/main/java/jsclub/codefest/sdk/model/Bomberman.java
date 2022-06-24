@@ -372,34 +372,65 @@ public class Bomberman {
         return mRestrictedNodes;
     }
 
-    public boolean isEndanger(Node a, List<Viruses> list) {
+    public boolean isEndanger(Node a, List<Viruses> list,List<Human> dhuman) {
+        if (myPill==0)
+        {
+            for (Human i: dhuman)
+            {
+                switch (i.direction)
+                {
+                    case 1:
+                        if (i.position.col-2==a.col && i.position.row==a.row)
+                            return true;
+                        break;
+                    case 2:
+                        if (i.position.col+2==a.col && i.position.row==a.row)
+                            return true;
+                        break;
+                    case 3:
+                        if (i.position.col==a.col && i.position.row-2==a.row)
+                            return true;
+                        break;
+                    case 4:
+                        if (i.position.col==a.col && i.position.row+2==a.row)
+                            return true;
+                        break;
+                }
+            }
+            for (Viruses i: list)
+            {
+                switch (i.direction)
+                {
+                    case 1:
+                        if (i.position.col-2==a.col && i.position.row==a.row)
+                            return true;
+                        break;
+                    case 2:
+                        if (i.position.col+2==a.col && i.position.row==a.row)
+                            return true;
+                        break;
+                    case 3:
+                        if (i.position.col==a.col && i.position.row-2==a.row)
+                            return true;
+                        break;
+                    case 4:
+                        if (i.position.col==a.col && i.position.row+2==a.row)
+                            return true;
+                        break;
+                }
+            }
+        }
         for (Node i:dangerBombs)
         {
             if (a.col==i.col && a.row==i.row)
                 return  true;
 
         }
-        for (Viruses i: list)
+
+        for (Node i: selfisolatedZone)
         {
-            switch (i.direction)
-            {
-                case 1:
-                    if (i.position.col-1==a.col && i.position.row==a.row)
-                        return true;
-                    break;
-                case 2:
-                    if (i.position.col+1==a.col && i.position.row==a.row)
-                        return true;
-                    break;
-                case 3:
-                    if (i.position.col==a.col && i.position.row-1==a.row)
-                        return true;
-                    break;
-                case 4:
-                    if (i.position.col==a.col && i.position.row+1==a.row)
-                        return true;
-                    break;
-            }
+            if (a.col==i.col && a.row==i.row)
+                return  true;
         }
        return false;
     }

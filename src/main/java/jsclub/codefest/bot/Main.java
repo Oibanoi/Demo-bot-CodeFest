@@ -6,16 +6,11 @@ import jsclub.codefest.sdk.algorithm.AStarSearch;
 import jsclub.codefest.sdk.algorithm.BaseAlgorithm;
 import jsclub.codefest.sdk.model.Bomberman;
 import jsclub.codefest.sdk.model.Hero;
-import jsclub.codefest.sdk.socket.data.Dir;
-import jsclub.codefest.sdk.socket.data.GameInfo;
-import jsclub.codefest.sdk.socket.data.Node;
-import jsclub.codefest.sdk.socket.data.Player;
+import jsclub.codefest.sdk.socket.data.*;
 import jsclub.codefest.sdk.util.GameUtil;
 import yonko.codefest.service.socket.data.MapInfo;
 
-import java.util.Map;
-import java.util.Random;
-import java.util.Stack;
+import java.util.*;
 
 public class Main {
     public static String getRandomPath() {
@@ -24,45 +19,117 @@ public class Main {
 
         return "1234b".charAt(random_integer) + "";
     }
-
-    public static String tactic(GameInfo gameInfo) {
-        //set up
+    public static void setup(GameInfo gameInfo)
+    {
         MapInfo map = gameInfo.map_info;
-        map.getMap();
         Player me = map.getPlayerByKey("player1-xxx");
         Bomberman b1 = new Bomberman();
-        b1.initPlayerInfo(me, map);
-        Node target = new Node(20, 7);
         AStarSearch a=new AStarSearch();
-        a.updateMapProp(map.size.cols, map.size.rows);
-        b1.setBombs(map.bombs,b1.getEnemyPlayer().power,true);
-        //
         BaseAlgorithm base = new BaseAlgorithm();
-        base.updateMapProp(map.size.cols, map.size.rows);
+        map.getMap();
+        b1.initPlayerInfo(me, map);
+        b1.setBombs(map.bombs,b1.getEnemyPlayer().power,true);
         b1.setVirusLists(map.getVirus(),true);
-        System.out.println(b1.isEndanger(b1.getPosition(),map.getVirus()));
-        if (b1.isEndanger(b1.getPosition(),map.getVirus())) {
-            String path = base.getEscapePath(b1,map);
-//            if (path.isEmpty() || path.equals("")) {
-//                path = hungry();
-//            }
-            System.out.println(path+"   #####");
-            return path;
-        }
-        System.out.println("-------------");
         b1.setBoxs(map.boxs);
+        base.updateMapProp(map.size.cols, map.size.rows);
+        a.updateMapProp(map.size.cols, map.size.rows);
+    }
+    public static String tactic(GameInfo gameInfo) {
+        //set up
+        //setup(gameInfo);
+        //
+        MapInfo map = gameInfo.map_info;
+        Player me = map.getPlayerByKey("player1-xxx");
+        Bomberman b1 = new Bomberman();
+        AStarSearch a=new AStarSearch();
+        BaseAlgorithm base = new BaseAlgorithm();
+        //set up
+        map.getMap();
+        b1.initPlayerInfo(me, map);
+        b1.setBombs(map.bombs,b1.getEnemyPlayer().power,true);
+        b1.setVirusLists(map.getVirus(),true);
+        b1.setBoxs(map.boxs);
+        b1.setDangerHumanList(map.getNHuman(),true);
+        base.updateMapProp(map.size.cols, map.size.rows);
+        a.updateMapProp(map.size.cols, map.size.rows);
+        //test output
 
-        for (Node i: b1.boxsCanBreak)
-            System.out.println(i);
-        Map<Node, Stack<Node>> findfood=base.getPathsToFood(b1,b1.boxsCanBreak,false);
-        for (Map.Entry<Node, Stack<Node>> path : findfood.entrySet())
-        {
-            String step=a.aStarSearch(b1, path.getKey(),-1);
-            if (!step.isEmpty())
-            {
-                return "b"+step;
+        //tactic
+//        System.out.println(b1.isEndanger(b1.getPosition(),map.getVirus(),map.getDhuman()));
+//        //get path to safe place if player in danger
+//        if (b1.isEndanger(b1.getPosition(),map.getVirus(),map.getDhuman())) {
+//            String path = base.getEscapePath(b1,map);
+////            if (path.isEmpty() || path.equals("")) {
+////                path = hungry();
+////            }
+//           // return Dir.INVALID;
+//            return path;
+//        }
+
+        //get food to eat
+//        List <Node> foods=b1.listShouldEatSpoils;
+//foods.removeAll(b1.boxsCanBreak);
+//        System.out.println("Player:"+b1.getPosition());
+//        for (Node i: foods) {
+//            System.out.println(i);
+//        }
+//        Map<Node, Stack<Node>> findfood=base.getPathsToFood(b1,foods,true);
+//        for (Map.Entry<Node, Stack<Node>> path : findfood.entrySet())
+//        {
+//            String step=a.aStarSearch(b1, path.getKey(),2);
+//            if (!step.isEmpty())
+//            {
+//                //return Dir.INVALID;
+//                return step;
+//            }
+//        }
+        //get box to break
+        List <Node> safeNode=b1.boxsCanBreak;
+        safeNode.addAll(b1.getBlankPlace());
+        safeNode.addAll(b1.listShouldEatSpoils);
+        safeNode.removeAll(b1.getBombs());
+        safeNode.removeAll(b1.getWalls());
+        safeNode.removeAll(b1.dangerBombs);
+        safeNode.removeAll(b1.getSelfisolatedZone());
+        safeNode.removeAll(b1.getVirusLists());
+        safeNode.removeAll(b1.getdangerHumanLists());
+
+        Collections.sort(safeNode, new Comparator<Node>() {
+            @Override
+            public int compare(Node o1, Node o2) {
+
+                if (o1.V==o2.V)
+                return  base.manhattanDistance(o1, b1.getPosition())-base.manhattanDistance(o2, b1.getPosition());
+                return (int) (o1.V-o2.V);
             }
+        });
+        System.out.println(b1.getPosition());
+//        for (Node i:safeNode)
+//        {
+//            System.out.println(i+" value:"+i.V);
+//        }
+        System.out.println(safeNode.get(0));
+        System.out.println("-------------");
+        String step=a.aStarSearch(b1, safeNode.get(0),-1);
+        if (!step.isEmpty())
+        {
+            //return Dir.INVALID;
+            System.out.println("b"+step);
+            return "b"+step;
         }
+        //findfood.clear();
+//        Map<Node, Stack<Node>>
+//                findfood=base.getPathsToFood(b1,safeNode,true);
+//        for (Map.Entry<Node, Stack<Node>> path : findfood.entrySet())
+//        {
+//            String step=a.aStarSearch(b1, path.getKey(),2);
+//            if (!step.isEmpty())
+//            {
+//                //return Dir.INVALID;
+//                System.out.println("b"+step);
+//                return "b"+step;
+//            }
+//        }
 //        System.out.println(me.toString());
 //         String fullStep = a.aStarSearch(b1, target, BaseAlgorithm.FULL_STEP);
 //         System.out.println(fullStep);

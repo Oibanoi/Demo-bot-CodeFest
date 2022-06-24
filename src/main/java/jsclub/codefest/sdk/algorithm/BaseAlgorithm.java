@@ -20,7 +20,7 @@ public class BaseAlgorithm {
      * @param des destination position
      * @return shortest distance
      */
-    int manhattanDistance(Position src, Position des) {
+    public int manhattanDistance(Position src, Position des) {
         return Math.abs(src.getX() - des.getX()) + Math.abs(src.getY() - des.getY());
     }
     String getStepsInString(Node first, Stack<Node> path, int numOfSteps) {
@@ -86,8 +86,8 @@ public class BaseAlgorithm {
 
         List<Node> restrictNode = new ArrayList<>();
         restrictNode.addAll(cloneBommer.getWalls());
-//        restrictNode.addAll(cloneBommer.getVirusLists());
-//        restrictNode.addAll(cloneBommer.getdangerHumanLists());
+        restrictNode.addAll(cloneBommer.getVirusLists());
+        restrictNode.addAll(cloneBommer.getdangerHumanLists());
         restrictNode.addAll(cloneBommer.getBoxs());
         restrictNode.addAll(cloneBommer.getSelfisolatedZone());
         if (safeNodes.contains(ownBomPlayer.getPosition())) {
@@ -98,7 +98,7 @@ public class BaseAlgorithm {
         safeNodes.removeAll(restrictNode);
         cloneBommer.setRestrictedNodes(restrictNode);
         //Find way out
-        Map<Node, Stack<Node>> pathToAllSafePlace = sortByComparator(getPathsToFood(cloneBommer, safeNodes, false), false);
+        Map<Node, Stack<Node>> pathToAllSafePlace = sortByComparator(getPathsToFood(cloneBommer, safeNodes, true), false);
         if (pathToAllSafePlace.isEmpty()) {
             restrictNode.clear();
             cloneBommer.setBombs(mapInfo.bombs, cloneBommer.getEnemyPlayer().power, false);
@@ -107,17 +107,18 @@ public class BaseAlgorithm {
             restrictNode.addAll(cloneBommer.getBombs());
             restrictNode.addAll(cloneBommer.getBoxs());
             restrictNode.addAll(cloneBommer.getSelfisolatedZone());
-//            restrictNode.addAll(cloneBommer.getVirusLists());
-//            restrictNode.addAll(cloneBommer.getdangerHumanLists());
+            restrictNode.addAll(cloneBommer.getVirusLists());
+            restrictNode.addAll(cloneBommer.getdangerHumanLists());
             cloneBommer.setRestrictedNodes(restrictNode);
+            safeNodes.removeAll(restrictNode);
             pathToAllSafePlace = sortByComparator(getPathsToFood(cloneBommer, safeNodes, false), false);
         }
 
         AStarSearch algorithm = new AStarSearch();
         algorithm.updateMapProp(mMapWidth, mMapHeight);
         for (Map.Entry<Node, Stack<Node>> path : pathToAllSafePlace.entrySet()) {
-            long searchTime = System.currentTimeMillis();
-            String steps = algorithm.aStarSearch(cloneBommer, path.getKey(), 2);
+
+            String steps = algorithm.aStarSearch(cloneBommer, path.getKey(), -1);
             if (!steps.isEmpty()) {
 
                 return steps;

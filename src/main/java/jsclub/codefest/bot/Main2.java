@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import io.socket.emitter.Emitter;
 import jsclub.codefest.bot.constant.GameConfig;
 import jsclub.codefest.sdk.model.Hero;
+import jsclub.codefest.sdk.socket.data.Dir;
 import jsclub.codefest.sdk.socket.data.GameInfo;
 import jsclub.codefest.sdk.util.GameUtil;
 
@@ -13,7 +14,7 @@ public class Main2 {
     public static String getRandomPath() {
         Random rand = new Random();
         int random_integer = rand.nextInt(5);
-
+        //return Dir.INVALID;
         return "1234b".charAt(random_integer) + "";
     }
 

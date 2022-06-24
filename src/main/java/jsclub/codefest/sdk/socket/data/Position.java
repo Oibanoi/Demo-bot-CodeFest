@@ -32,4 +32,12 @@ public class Position {
         }
         return allNode;
     }
+
+    @Override
+    public String toString() {
+        return "Position{" +
+                "col=" + col +
+                ", row=" + row +
+                '}';
+    }
 }
