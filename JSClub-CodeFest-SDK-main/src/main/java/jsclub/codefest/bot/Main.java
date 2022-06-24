@@ -4,11 +4,9 @@ import io.socket.emitter.Emitter.Listener;
 import jsclub.codefest.bot.constant.GameConfig;
 import jsclub.codefest.sdk.algorithm.AStarSearch;
 import jsclub.codefest.sdk.algorithm.BaseAlgorithm;
-import jsclub.codefest.sdk.model.Bomberman;
 import jsclub.codefest.sdk.model.Hero;
 import jsclub.codefest.sdk.socket.data.*;
 import jsclub.codefest.sdk.util.GameUtil;
-import yonko.codefest.service.socket.data.MapInfo;
 
 import java.util.*;
 
@@ -43,7 +41,7 @@ public class Main {
 //        System.out.println(b1.isEndanger(b1.getPosition(),map.getVirus(),map.getDhuman()));
 //        //get path to safe place if player in danger
 //        if (b1.isEndanger(b1.getPosition(),map.getVirus(),map.getDhuman())) {
-            String path = base.getEscapePath(b1,map);
+        String path = base.getEscapePath(b1,map);
 ////            if (path.isEmpty() || path.equals("")) {
 ////                path = hungry();
 ////            }
@@ -90,7 +88,7 @@ public class Main {
             public int compare(Node o1, Node o2) {
 
                 if (o1.V==o2.V)
-                return  base.manhattanDistance(o1, b1.getPosition())-base.manhattanDistance(o2, b1.getPosition());
+                    return  base.manhattanDistance(o1, b1.getPosition())-base.manhattanDistance(o2, b1.getPosition());
                 return (int) (o1.V-o2.V);
             }
         });
@@ -127,12 +125,19 @@ public class Main {
 //         return fullStep;
         return Dir.INVALID;
     }
-
     public static void main(String[] aDrgs) {
         Hero player1 = new Hero("player1-xxx", GameConfig.GAME_ID);
         Listener onTickTackListener = objects -> {
-            GameInfo gameInfo = GameUtil.getMapInfo(objects);
-            //chienthuat()
+            GameInfo gameInfo = GameUtil.getGameInfo(objects);
+            MapInfo mapInfo = gameInfo.map_info;
+
+            Position currentPosition = mapInfo.getCurrentPosition(player1);
+            Position enemyPosisiton = mapInfo.getEnemyPosition(player1);
+
+            List<Position> restrictPosition =  new ArrayList<Position>();
+
+
+
             player1.move(tactic(gameInfo));
         };
         player1.setOnTickTackListener(onTickTackListener);
