@@ -60,55 +60,54 @@ public class BaseAlgorithm {
         mMapWidth = width;
         mMapHeight = height;
     }
-//    public String getEscapePath(Bomberman ownBomPlayer, MapInfo mapInfo) {
-//        Bomberman cloneBommer = Bomberman.clone(ownBomPlayer);
-//        //1.Set bomb without effect tile for find escape way even through bomb effect tile
-//        //Get Blank space without bomb tile including
-//        List<Node> safeNodes = ownBomPlayer.getBlankPlace();
-//        safeNodes.removeAll(ownBomPlayer.getBombs());
-//
-//        List<Node> restrictNode = new ArrayList<>();
-//        restrictNode.addAll(cloneBommer.getWalls());
-//        restrictNode.addAll(cloneBommer.getVirusLists());
-//        restrictNode.addAll(cloneBommer.getdangerHumanLists());
-//        restrictNode.addAll(cloneBommer.getBoxs());
-//        restrictNode.addAll(cloneBommer.getSelfisolatedZone());
-//        if (safeNodes.contains(ownBomPlayer.getPosition())) {
-//            restrictNode.addAll(cloneBommer.dangerBombs);
-//        } else {
-//            restrictNode.addAll(cloneBommer.getBombs());
-//        }
-//        safeNodes.removeAll(restrictNode);
-//        cloneBommer.setRestrictedNodes(restrictNode);
-//        //Find way out
-//        Map<Node, Stack<Node>> pathToAllSafePlace = sortByComparator(getPathsToFood(cloneBommer, safeNodes, true), false);
-//        if (pathToAllSafePlace.isEmpty()) {
-//            restrictNode.clear();
-//            cloneBommer.setBombs(mapInfo.bombs, cloneBommer.getEnemyPlayer().power, false);
-//            cloneBommer.setVirusLists(mapInfo.getVirus(),true);
-//            cloneBommer.setDangerHumanList(mapInfo.getDhuman(),true);
-//            restrictNode.addAll(cloneBommer.getBombs());
-//            restrictNode.addAll(cloneBommer.getBoxs());
-//            restrictNode.addAll(cloneBommer.getSelfisolatedZone());
-//            restrictNode.addAll(cloneBommer.getVirusLists());
-//            restrictNode.addAll(cloneBommer.getdangerHumanLists());
-//            cloneBommer.setRestrictedNodes(restrictNode);
-//            safeNodes.removeAll(restrictNode);
-//            pathToAllSafePlace = sortByComparator(getPathsToFood(cloneBommer, safeNodes, false), false);
-//        }
-//
-//        AStarSearch algorithm = new AStarSearch();
-//        algorithm.updateMapProp(mMapWidth, mMapHeight);
-//        for (Map.Entry<Node, Stack<Node>> path : pathToAllSafePlace.entrySet()) {
-//
-//            String steps = algorithm.aStarSearch(cloneBommer, path.getKey(), -1);
-//            if (!steps.isEmpty()) {
-//
-//                return steps;
-//            }
-//        }
-//        return Dir.INVALID;
-//    }
+    public String getEscapePath(Bomberman ownBomPlayer, MapInfo mapInfo) {
+        Bomberman cloneBommer = Bomberman.clone(ownBomPlayer);
+        //1.Set bomb without effect tile for find escape way even through bomb effect tile
+        //Get Blank space without bomb tile including
+        List<Node> safeNodes = ownBomPlayer.getBlankPlace();
+        safeNodes.removeAll(ownBomPlayer.getBombs());
+
+        List<Node> restrictNode = new ArrayList<>();
+        restrictNode.addAll(cloneBommer.getWalls());
+        restrictNode.addAll(cloneBommer.getVirusLists());
+        restrictNode.addAll(cloneBommer.getdangerHumanLists());
+        restrictNode.addAll(cloneBommer.getBoxs());
+        restrictNode.addAll(cloneBommer.getSelfisolatedZone());
+        if (safeNodes.contains(ownBomPlayer.getPosition())) {
+            restrictNode.addAll(cloneBommer.dangerBombs);
+        } else {
+            restrictNode.addAll(cloneBommer.getBombs());
+        }
+        safeNodes.removeAll(restrictNode);
+        cloneBommer.setRestrictedNodes(restrictNode);
+        //Find way out
+        Map<Node, Stack<Node>> pathToAllSafePlace = sortByComparator(getPathsToFood(cloneBommer, safeNodes, true), false);
+        if (pathToAllSafePlace.isEmpty()) {
+            restrictNode.clear();
+            cloneBommer.setBombs(mapInfo.bombs, cloneBommer.getEnemyPlayer().power, false);
+            cloneBommer.setVirusLists(mapInfo.getVirus(),true);
+            cloneBommer.setDangerHumanList(mapInfo.getDhuman(),true);
+            restrictNode.addAll(cloneBommer.getBombs());
+            restrictNode.addAll(cloneBommer.getBoxs());
+            restrictNode.addAll(cloneBommer.getSelfisolatedZone());
+            restrictNode.addAll(cloneBommer.getVirusLists());
+            restrictNode.addAll(cloneBommer.getdangerHumanLists());
+            cloneBommer.setRestrictedNodes(restrictNode);
+            safeNodes.removeAll(restrictNode);
+            pathToAllSafePlace = sortByComparator(getPathsToFood(cloneBommer, safeNodes, false), false);
+        }
+
+        AStarSearch algorithm = new AStarSearch();
+        algorithm.updateMapProp(mMapWidth, mMapHeight);
+        for (Map.Entry<Node, Stack<Node>> path : pathToAllSafePlace.entrySet()) {
+
+            String steps = algorithm.aStarSearchString(mapInfo.getMap(), restrictNode, cloneBommer.getPosition(), safeNodes.get(0));
+            if (!steps.isEmpty()) {
+                return steps;
+            }
+        }
+        return Dir.INVALID;
+    }
     private Map<Node, Stack<Node>> sortByComparator(Map<Node, Stack<Node>> unsortedMap, boolean isReverse) {
         List<Map.Entry<Node, Stack<Node>>> list = new LinkedList<>(unsortedMap.entrySet());
         list.sort((o1, o2) -> {

@@ -90,8 +90,9 @@ public class Main {
             public int compare(Node o1, Node o2) {
 
                 if (o1.V==o2.V)
-                return  base.manhattanDistance(o1, b1.getPosition())-base.manhattanDistance(o2, b1.getPosition());
-                return (int) (o1.V-o2.V);
+                    return base.manhattanDistance(o1, b1.getPosition())-base.manhattanDistance(o2, b1.getPosition());
+                else
+                    return (int) (o1.V-o2.V);
             }
         });
         System.out.println(b1.getPosition());
@@ -101,7 +102,14 @@ public class Main {
 //        }
         System.out.println(safeNode.get(0));
         System.out.println("-------------");
-        String step=a.aStarSearch(map., safeNode.get(0),-1);
+
+        String step = a.aStarSearchString(
+                map.getMap(),
+                restrictedNode,
+                new Node(me.currentPosition.getX(), me.currentPosition.getY()),
+                safeNode.get(0)
+        );
+
         if (!step.isEmpty())
         {
             //return Dir.INVALID;

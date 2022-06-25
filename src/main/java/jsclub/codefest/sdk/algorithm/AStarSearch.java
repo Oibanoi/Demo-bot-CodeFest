@@ -88,7 +88,7 @@ public class AStarSearch extends BaseAlgorithm{
         }
         return allPaths;
     }
-    String aStarSearch(int[][] matrix, List<Position> restrictNode, Position start, Position end) {
+    public String aStarSearchString(int[][] matrix, List<Node> restrictNode, Position start, Position end) {
         Node startNode = Node.createFromPosition(start);
         Node endNode = Node.createFromPosition(end);
 
