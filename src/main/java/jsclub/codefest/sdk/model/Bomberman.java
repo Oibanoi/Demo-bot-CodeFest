@@ -38,14 +38,15 @@ public class Bomberman {
 
     public Player mEnemyPlayer;
 
-    public void initPlayerInfo(Player myPlayer, yonko.codefest.service.socket.data.MapInfo mapInfo) {
+    public void initPlayerInfo(Player myPlayer, MapInfo mapInfo) {
         metadata = myPlayer;
         setPosition(Node.createFromPosition(myPlayer.currentPosition));
         setPlayerStatus(myPlayer.power, myPlayer.speed, myPlayer.delay, myPlayer.pill);
+        mapInfo.updateMapInfo();
         setBlankPlace(mapInfo.blank);
         filterSpoils(mapInfo);
-        List<Node> boxList = new ArrayList<>(mapInfo.boxs);
-        Player enemy = mapInfo.getEnemy();
+        List<Node> boxList = new ArrayList<>(mapInfo.balk);
+        Player enemy = mapInfo.getPlayerByKey("player2-xxx");
         if (enemy != null) {
             Node enemyPosisiton = Node.createFromPosition(enemy.currentPosition);
 //            boxList.add(enemyPosisiton);
@@ -54,7 +55,7 @@ public class Bomberman {
         setBoxs(boxList);
 //        setBoxsGifts(mapInfo.boxsGift);
         setWalls(mapInfo.walls);
-        setSelfisolatedZone(mapInfo.selfisolatedZone);
+        setSelfisolatedZone(mapInfo.quarantinePlace);
         setNormalHumanList(mapInfo.getNHuman());
         setVirusLists(mapInfo.getVirus(), true);
         setDangerHumanList(mapInfo.getDhuman(), true);
@@ -279,7 +280,7 @@ public class Bomberman {
         return listEffectBomb;
     }
 
-    public void filterSpoils(yonko.codefest.service.socket.data.MapInfo info) {
+    public void filterSpoils(MapInfo info) {
         listShouldEatSpoils.clear();
 //        listNoEatSpoils.clear();
         for (Spoil spoil : info.spoils) {

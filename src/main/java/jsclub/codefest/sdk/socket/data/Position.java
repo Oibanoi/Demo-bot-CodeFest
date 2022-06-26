@@ -15,6 +15,11 @@ public class Position {
         return row;
     }
 
+    public Position(int col, int row) {
+        this.col = col;
+        this.row = row;
+    }
+
     public List<Node> getAllPosition(Position currentP, int direction){
         List<Node> allNode = new ArrayList<>();
         if(direction!=0){
@@ -31,13 +36,5 @@ public class Position {
             allNode.add(futureN.nextPosition(4, 1));
         }
         return allNode;
-    }
-
-    @Override
-    public String toString() {
-        return "Position{" +
-                "col=" + col +
-                ", row=" + row +
-                '}';
     }
 }

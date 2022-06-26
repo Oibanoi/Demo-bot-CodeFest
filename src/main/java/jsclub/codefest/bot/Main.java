@@ -8,7 +8,6 @@ import jsclub.codefest.sdk.model.Bomberman;
 import jsclub.codefest.sdk.model.Hero;
 import jsclub.codefest.sdk.socket.data.*;
 import jsclub.codefest.sdk.util.GameUtil;
-import yonko.codefest.service.socket.data.MapInfo;
 
 import java.util.*;
 
@@ -29,21 +28,21 @@ public class Main {
         AStarSearch a=new AStarSearch();
         BaseAlgorithm base = new BaseAlgorithm();
         //set up
-        map.getMap();
+        map.updateMapInfo();
         b1.initPlayerInfo(me, map);
         b1.setBombs(map.bombs,b1.getEnemyPlayer().power,true);
         b1.setVirusLists(map.getVirus(),true);
-        b1.setBoxs(map.boxs);
+        b1.setBoxs(map.balk);
         b1.setDangerHumanList(map.getNHuman(),true);
-        base.updateMapProp(map.size.cols, map.size.rows);
-        a.updateMapProp(map.size.cols, map.size.rows);
+        //base.updateMapProp(map.size.cols, map.size.rows);
+        //a.updateMapProp(map.size.cols, map.size.rows);
         //test output
 
         //tactic
 //        System.out.println(b1.isEndanger(b1.getPosition(),map.getVirus(),map.getDhuman()));
 //        //get path to safe place if player in danger
 //        if (b1.isEndanger(b1.getPosition(),map.getVirus(),map.getDhuman())) {
-            String path = base.getEscapePath(b1,map);
+        //String path = base.getEscapePath(b1,map);
 ////            if (path.isEmpty() || path.equals("")) {
 ////                path = hungry();
 ////            }
@@ -90,26 +89,19 @@ public class Main {
             public int compare(Node o1, Node o2) {
 
                 if (o1.V==o2.V)
-                    return base.manhattanDistance(o1, b1.getPosition())-base.manhattanDistance(o2, b1.getPosition());
-                else
-                    return (int) (o1.V-o2.V);
+                    return  base.manhattanDistance(o1, b1.getPosition())-base.manhattanDistance(o2, b1.getPosition());
+                return (int) (o2.V-o1.V);
             }
         });
         System.out.println(b1.getPosition());
-//        for (Node i:safeNode)
-//        {
-//            System.out.println(i+" value:"+i.V);
-//        }
-        System.out.println(safeNode.get(0));
+        for (Node i:restrictedNode)
+        {
+            System.out.println(i+" value:"+i.V);
+        }
+        System.out.println(restrictedNode.get(0));
+        System.out.println(b1.getPosition());
         System.out.println("-------------");
-
-        String step = a.aStarSearchString(
-                map.getMap(),
-                restrictedNode,
-                new Node(me.currentPosition.getX(), me.currentPosition.getY()),
-                safeNode.get(0)
-        );
-
+        String step=a.aStarSearch(map.map,restrictedNode,me.currentPosition,safeNode.get(0)); //   a.aStarSearch(map.map,restrictedNode,me.currentPosition, safeNode.get(0));
         if (!step.isEmpty())
         {
             //return Dir.INVALID;
@@ -135,12 +127,19 @@ public class Main {
 //         return fullStep;
         return Dir.INVALID;
     }
-
     public static void main(String[] aDrgs) {
         Hero player1 = new Hero("player1-xxx", GameConfig.GAME_ID);
         Listener onTickTackListener = objects -> {
-            GameInfo gameInfo = GameUtil.getMapInfo(objects);
-            //chienthuat()
+            GameInfo gameInfo = GameUtil.getGameInfo(objects);
+            MapInfo mapInfo = gameInfo.map_info;
+
+            Position currentPosition = mapInfo.getCurrentPosition(player1);
+            Position enemyPosisiton = mapInfo.getEnemyPosition(player1);
+
+            List<Position> restrictPosition =  new ArrayList<Position>();
+
+
+
             player1.move(tactic(gameInfo));
         };
         player1.setOnTickTackListener(onTickTackListener);

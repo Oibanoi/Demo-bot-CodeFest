@@ -1,94 +1,12 @@
 package jsclub.codefest.sdk.algorithm;
 
 import jsclub.codefest.sdk.constant.MapEncode;
-import jsclub.codefest.sdk.model.Bomberman;
 import jsclub.codefest.sdk.socket.data.Node;
 import jsclub.codefest.sdk.socket.data.Position;
-
 import java.util.*;
 
 public class AStarSearch extends BaseAlgorithm{
-
-    /**
-     * A Find the furthest/shortest path
-     *
-     * @param player
-     * @param target
-     * @return
-     */
-
-    public void updateMapProp(int width, int height) {
-        mMapWidth = width;
-        mMapHeight = height;
-    }
-
-    public Map<Node, Stack<Node>> getPathsToAllFoods(Bomberman player, List<Node> targets, boolean isCollectSpoils) {
-        Bomberman clonePlayer = Bomberman.clone(player);
-        Map<Node, Stack<Node>> allPaths = new HashMap<>();
-        Queue<Node> open = new LinkedList<>();
-        Set<String> visited = new HashSet<>();// Record the visited Node
-        List<Node> target = new ArrayList<>(targets);
-        open.add(clonePlayer.getPosition());
-        while(!open.isEmpty()) {
-            Node now = open.remove();
-            if (target.isEmpty()) {
-                return allPaths;
-            }
-            for (Node food : target) {
-                if (food.equals(now)) {
-                    Stack<Node> paths = new Stack<>();
-                    Node node = now;
-                    while (node != null
-//                            && !node.equals(player.getPosition())
-                    ) {
-                        paths.push(node);
-                        node = node.getFather();
-                    }
-                    allPaths.put(food, paths);
-                    target.remove(food);
-                    break;
-                }
-            }
-            Node left = Node.createFromPosition(now.leftPosition(1));
-            Node right = Node.createFromPosition(now.rightPosition(1));
-            Node up = Node.createFromPosition(now.upPosition(1));
-            Node down = Node.createFromPosition(now.downPosition(1));
-            if (!player.getRestrictedNodes().contains(up.toString()) && !visited.contains(up.toString()) && up.getX() <= mMapWidth
-                    && up.getX() >= 1 && up.getY() <= mMapHeight  && up.getY() >= 1 && (!isCollectSpoils || !player.getBoxs().contains(up))) {
-                up.setFather(now);
-                open.add(up);
-                visited.add(up.toString());
-            }
-            if (!player.getRestrictedNodes().contains(right.toString())
-                    && !visited.contains(right.toString())
-                    && right.getX() <= mMapWidth
-                    && right.getX() >= 1
-                    && right.getY() <= mMapHeight
-                    && right.getY() >= 1
-                    && (!isCollectSpoils
-                    || !player.getBoxs().contains(right))) {
-                right.setFather(now);
-                open.add(right);
-                visited.add(right.toString());
-            }
-            if (!player.getRestrictedNodes().contains(down.toString()) && !visited.contains(down.toString()) && down.getX() <= mMapWidth
-                    && down.getX() >= 1 && down.getY() <= mMapHeight && down.getY() >= 1
-                    && (!isCollectSpoils || !player.getBoxs().contains(down))) {
-                down.setFather(now);
-                open.add(down);
-                visited.add(down.toString());
-            }
-            if (!player.getRestrictedNodes().contains(left.toString()) && !visited.contains(left.toString()) && left.getX() <= mMapWidth
-                    && left.getX() >= 1 && left.getY() <= mMapHeight && left.getY() >= 1
-                    && (!isCollectSpoils || !player.getBoxs().contains(left))) {
-                left.setFather(now);
-                open.add(left);
-                visited.add(left.toString());
-            }
-        }
-        return allPaths;
-    }
-    public String aStarSearchString(int[][] matrix, List<Node> restrictNode, Position start, Position end) {
+    public String aStarSearch(int[][] matrix, List<Node> restrictNode, Position start, Position end) {
         Node startNode = Node.createFromPosition(start);
         Node endNode = Node.createFromPosition(end);
 
@@ -144,12 +62,12 @@ public class AStarSearch extends BaseAlgorithm{
                 // in the closed list, then no action is taken and the next Node continues to be
                 // examined;
                 if (
-                        (!n.equals(target) && !this.isValidNode(matrix, n, restrictNode))
-                                || closeList.contains(n)
-                                || n.getX() > mMapWidth
-                                || n.getX() < 1
-                                || n.getY() > mMapHeight
-                                || n.getY() < 1) {
+                    (!n.equals(target) && !this.isValidNode(matrix, n, restrictNode))
+                    || closeList.contains(n)
+                    || n.getX() > mMapWidth
+                    || n.getX() < 1
+                    || n.getY() > mMapHeight
+                    || n.getY() < 1) {
                     continue;
                 }
 

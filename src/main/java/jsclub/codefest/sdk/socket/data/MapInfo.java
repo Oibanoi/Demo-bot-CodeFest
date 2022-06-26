@@ -1,9 +1,9 @@
-package yonko.codefest.service.socket.data;
+package jsclub.codefest.sdk.socket.data;
 
 import com.google.gson.Gson;
-import jsclub.codefest.sdk.model.Hero;
-import jsclub.codefest.sdk.socket.data.*;
 
+import jsclub.codefest.sdk.constant.MapEncode;
+import jsclub.codefest.sdk.model.Hero;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,16 +11,17 @@ public class MapInfo {
     public String myId;
     public MapSize size;
     public List<Player> players;
-    public List<int[]> map;
+    public int[][] map;
     public List<Bomb> bombs;
     public List<Spoil> spoils;
     public List<Gift> gifts;
     public List<Viruses> viruses;
     public List<Human> human;
     public List<Node> walls = new ArrayList<>();
-    public List<Node> boxs = new ArrayList<>();
+    public List<Node> balk = new ArrayList<>();
     public List<Node> blank = new ArrayList<>();
-    public List<Node> selfisolatedZone = new ArrayList();
+    public List<Node> teleportGate = new ArrayList();
+    public List<Node> quarantinePlace = new ArrayList();
 
     public Player getPlayerByKey(String key) {
         Player player = null;
@@ -63,35 +64,61 @@ public class MapInfo {
         return nhumanList;
     }
 
-    public Player getEnemy() {
-        for (Player player : players) {
-            if (!Hero.getPlayerName().startsWith(player.id)) {
-                return player;
+    public void updateMapInfo() {
+        for (int i = 0; i < size.rows; i++) {
+            int[] map=new int[this.map[0].length];
+            for (int j=0;j<this.map[0].length;j++)
+                map[j]=this.map[i][j];
+            //int[] map = this.map.get(i);
+            for (int j = 0; j < size.cols; j++) {
+                switch (map[j]) {
+                    case MapEncode.ROAD:
+                        blank.add(new Node(j,i));
+                        break;
+                    case MapEncode.WALL:
+                        walls.add(new Node(j,i));
+                        break;
+                    case MapEncode.BALK:
+                        balk.add(new Node(j,i));
+                        break;
+                    case MapEncode.TELEPORT_GATE:
+                        teleportGate.add(new Node(j,i));
+                        break;
+                    case MapEncode.QUARANTINE_PLACE:
+                        quarantinePlace.add(new Node(j,i));
+                        break;
+                    default:
+                        walls.add(new Node(j,i));
+                        break;
+                }
             }
         }
-        return null;
     }
 
-    public int[][] getMap() {
-        int[][] map = new int[size.rows][size.cols];
-        for (int i = 0; i < size.rows; i++) {
-            map[i] = this.map.get(i);
-            for (int j = 0; j < size.cols; j++) {
-                if (map[i][j] == 0) {
-                    blank.add(new Node(j,i));
-                } else if (map[i][j] == 1) {
-                    walls.add(new Node(j,i));
-                } else if (map[i][j] == 2) {
-                    boxs.add(new Node(j,i));
-                } else if (map[i][j] == 6 || map[i][j] == 7) {
-                    selfisolatedZone.add(new Node(j,i));
-                } else {
-                    walls.add(new Node(j,i));
+    public Position getEnemyPosition(Hero hero) {
+        Position position = null;
+        if (hero != null) {
+            for (Player player : players) {
+                if (!hero.getPlayerName().startsWith(player.id)) {
+                    position = player.currentPosition;
+                    break;
                 }
-
             }
         }
-        return map;
+        return position;
+    }
+
+    public Position getCurrentPosition(Hero hero) {
+        Position position = null;
+        if (hero != null) {
+            for (Player player : players) {
+                if (hero.getPlayerName().startsWith(player.id)) {
+                    position = player.currentPosition;
+                    break;
+                }
+            }
+        }
+        return position;
     }
 
     @Override

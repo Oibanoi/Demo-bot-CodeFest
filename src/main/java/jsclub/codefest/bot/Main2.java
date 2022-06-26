@@ -14,16 +14,16 @@ public class Main2 {
     public static String getRandomPath() {
         Random rand = new Random();
         int random_integer = rand.nextInt(5);
-        //return Dir.INVALID;
+
         return "1234b".charAt(random_integer) + "";
     }
 
     public static void main(String[] aDrgs) {
         Hero player2 = new Hero("player2-xxx", GameConfig.GAME_ID);
         Emitter.Listener onTickTackListener = objects -> {
-            GameInfo gameInfo = GameUtil.getMapInfo(objects);
+            GameInfo gameInfo = GameUtil.getGameInfo(objects);
 
-            player2.move(getRandomPath());
+            player2.move(Dir.INVALID);
         };
         player2.setOnTickTackListener(onTickTackListener);
         player2.connectToServer();
